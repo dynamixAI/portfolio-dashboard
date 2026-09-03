@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>{{ display_name }} — Projects</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #FFFFFF;
+      --ink: #14151A;
+      --sub: #4A4C55;
+      --accent: #1E7A5F;
+      --accent2: #E0862A;
+      --line: #E2E1DC;
+      --card-bg: #FBFBF9;
+    }
+
+    [data-theme="dark"] {
+      --bg: #14151A;
+      --ink: #F4F4F2;
+      --sub: #B8BAC2;
+      --accent: #4FD8AA;
+      --accent2: #FFB24D;
+      --line: #2C2E36;
+      --card-bg: #1C1D24;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Inter', sans-serif;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 56px 24px;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+    }
+
+    h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin: 0 0 6px;
+    }
+
+    .tagline {
+      color: var(--sub);
+      margin: 0 0 36px;
+      max-width: 480px;
+      line-height: 1.5;
+    }
+
+    #themeToggle {
+      background: var(--card-bg);
+      border: 1px solid var(--line);
+      color: var(--ink);
+      border-radius: 20px;
+      padding: 8px 16px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    #themeToggle:hover {
+      border-color: var(--accent);
+    }
+
+    .stats {
+      display: flex;
+      gap: 40px;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 20px 0;
+      margin-bottom: 40px;
+    }
+
+    .stat-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.6rem;
+      font-weight: 500;
+      color: var(--accent);
+      display: block;
+    }
+
+    .stat-label {
+      color: var(--sub);
+      font-size: 0.85rem;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 40px;
+      align-items: start;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 18px;
+      background: var(--card-bg);
+      transition: border-color 0.15s, transform 0.15s;
+    }
+
+    .card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .card h3 {
+      margin: 0 0 8px;
+      font-size: 1.05rem;
+    }
+
+    .card h3 a {
+      color: var(--ink);
+      text-decoration: none;
+    }
+
+    .card h3 a:hover {
+      color: var(--accent);
+    }
+
+    .card p {
+      margin: 0 0 14px;
+      font-size: 0.9rem;
+      color: var(--sub);
+      line-height: 1.5;
+    }
+
+    .meta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--accent2);
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .updated {
+      margin-top: 10px;
+      font-size: 0.75rem;
+      color: var(--sub);
+    }
+
+    .chart-box {
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 20px;
+      background: var(--card-bg);
+    }
+
+    .chart-box h4 {
+      margin: 0 0 16px;
+      font-size: 0.95rem;
+    }
+
+    .empty-message {
+      color: var(--sub);
+      font-size: 0.9rem;
+      padding: 20px 0;
+    }
+
+    @media (max-width: 700px) {
+      body {
+        padding: 32px 18px;
+      }
+
+      .top-row {
+        flex-direction: column;
+      }
+
+      h1 {
+        font-size: 1.8rem;
+      }
+
+      .stats {
+        gap: 24px;
+      }
+
+      .layout {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+
+      .chart-box {
+        order: -1;
+      }
+    }
+  </style>
+</head>
+
+<body data-theme="light">
+
+  <div class="top-row">
+    <div>
+      <h1>{{ display_name }} Projects</h1>
+
+      <p class="tagline">
+        Live from GitHub — pulled automatically on every visit.
+      </p>
+    </div>
+
+    <button id="themeToggle" onclick="toggleTheme()">
+      Dark mode
+    </button>
+  </div>
+
+
+  <div class="stats">
+
+    <div>
+      <span class="stat-num">{{ repos|length }}</span>
+      <span class="stat-label">Repos</span>
+    </div>
+
+    <div>
+      <span class="stat-num">{{ total_stars }}</span>
+      <span class="stat-label">Total stars</span>
+    </div>
+
+    <div>
+      <span class="stat-num">{{ chart_labels|length }}</span>
+      <span class="stat-label">Languages</span>
+    </div>
+
+  </div>
+
+
+  <div class="layout">
+
+    <div class="grid">
+
+      {% if repos %}
+
+        {% for repo in repos %}
+
+        <div class="card">
+
+          <h3>
+            <a
+              href="{{ repo.url }}"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {{ repo.name }}
+            </a>
+          </h3>
+
+          <p>
+            {{ repo.description }}
+          </p>
+
+          <div class="meta">
+            <span>{{ repo.language }}</span>
+            <span>★ {{ repo.stars }}</span>
+          </div>
+
+          <div class="updated">
+            Updated: {{ repo.updated_at[:10] }}
+          </div>
+
+        </div>
+
+        {% endfor %}
+
+      {% else %}
+
+        <div class="empty-message">
+          No public repositories found.
+        </div>
+
+      {% endif %}
+
+    </div>
+
+
+    <div class="chart-box">
+
+      <h4>Language mix</h4>
+
+      <canvas id="langChart"></canvas>
+
+    </div>
+
+  </div>
+
+
+  <script>
+
+    const chart = new Chart(
+      document.getElementById('langChart'),
+      {
+        type: 'doughnut',
+
+        data: {
+          labels: {{ chart_labels|tojson }},
+
+          datasets: [
+            {
+              data: {{ chart_values|tojson }},
+
+              backgroundColor: [
+                '#1E7A5F',
+                '#E0862A',
+                '#4FD8AA',
+                '#FFB24D',
+                '#8FA998'
+              ]
+            }
+          ]
+        },
+
+        options: {
+          responsive: true,
+
+          plugins: {
+            legend: {
+              labels: {
+                color: getComputedStyle(document.body)
+                  .getPropertyValue('--ink')
+              }
+            }
+          }
+        }
+      }
+    );
+
+
+    function toggleTheme() {
+
+      const body = document.body;
+
+      const isDark =
+        body.getAttribute('data-theme') === 'dark';
+
+      body.setAttribute(
+        'data-theme',
+        isDark ? 'light' : 'dark'
+      );
+
+      document.getElementById('themeToggle').textContent =
+        isDark ? 'Dark mode' : 'Light mode';
+
+      chart.options.plugins.legend.labels.color =
+        getComputedStyle(body)
+          .getPropertyValue('--ink');
+
+      chart.update();
+    }
+
+  </script>
+
+</body>
+</html>
